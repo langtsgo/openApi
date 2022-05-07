@@ -1,0 +1,884 @@
+openapi: '3.0.2'
+info:
+  title: Splashtop RFE and RS APIs 
+  version: '2.0'
+  description: |
+    RS is the server for SRC and SRC to transport data among them. RFE is used to get RS info. 
+    The documents defines what are the APIs for them. 
+    
+    To try these APIs out in Swagger Viewer in VSCode, please run vscode's electron with --disable-web-security --user-data-dir=ericgao, for example: 
+
+    ````
+      /Applications/Visual\ Studio\ Code.app/Contents/MacOS/Electron --disable-web-security --user-data-dir=relay
+    ````
+    To try these APIs out in SWagger Viewer or SwaggerUI/Editor in Chrome, please run chrome with --disable-web-security --user-data-dir=relay, for example
+    
+    ```
+      /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --disable-web-security --user-data-dir=relay
+  
+  termsOfService: https://wwww.splashtop.com
+  license:
+    name: Splashtop
+    url: https://wwww.splashtop.com
+  contact: 
+    name: Eric Gao
+    email: eric.gao@splashtop.com
+servers: 
+  - url: https://be-fe-19-st2-universal.relay.splashtop.com
+  - url: https://be-fe-19-st2-ca.relay.splashtop.com
+  - url: https://be-fe-19-st2-cn.relay.splashtop.com
+  - url: https://be-fe-19-st2-eu-frankfurt.relay.splashtop.com
+  - url: https://be-fe-19-st2-eu-london.relay.splashtop.com
+  - url: https://be-fe-19-st2-eu-north.relay.splashtop.com
+  - url: https://be-fe-19-st2-hk.relay.splashtop.com
+  - url: https://be-fe-19-st2-id.relay.splashtop.com
+  - url: https://be-fe-19-st2-in.relay.splashtop.com
+  - url: https://be-fe-19-st2-jp.relay.splashtop.com
+  - url: https://be-fe-19-st2-kr.relay.splashtop.com
+  - url: https://be-fe-19-st2-me.relay.splashtop.com
+  - url: https://be-fe-19-st2-sa.relay.splashtop.com
+  - url: https://be-fe-19-st2-sg.relay.splashtop.com
+  - url: https://be-fe-19-st2-tw.relay.splashtop.com
+  - url: https://be-fe-19-st2-us.relay.splashtop.com
+  - url: https://be-fe-19-st2-us-east.relay.splashtop.com
+  - url: https://be-fe-19-st2-za.relay.splashtop.com 
+  - url: https://be-rfe-17-3-st2-cn.relay.splashtop.com 
+components:
+  schemas:
+    ip: 
+      type: string
+      description: |
+        Optional.
+        
+        Relay, UDP or QUIC server's ip or FQDN.
+
+        
+        Can be IP or FQDN.
+
+      example: 1-1-1-1.relay.splashtop.com
+      nullable: true
+      default: 
+    port: 
+      type: number
+      description: |
+        Optional.  
+
+        Relay, UDP or QUIC server's port.  
+
+      default: 443
+      minimum: 1
+      maximum: 65535
+    srs_key: 
+      description: |
+        One of Key pair in relay info, used for Relay to validate SRS with srs_key. 
+
+        srs_key is geneated by SRS to request relay info from bakcend and then RFE
+      type: string 
+      nullable: false
+      example: ui7nzwlhApwJN6BvqtC19XaMUxU3NO2OJ5TApWT
+      externalDocs:
+        url: http://wiki.dvm.corp/index.php/APIs_for_SRC/SRS
+        
+    src_key: 
+      description: |
+        One of Key pair in relay info, used for Relay to validate SRC with src_key. 
+
+        src_key is geneated by SRS to request relay info from bakcend and then RFE 
+      type: string 
+      nullable: false
+      example: ui7nzwlhApwJN6BvqtC19XaMUxU3NO2OJ5TApWT
+      externalDocs:
+        url:  http://wiki.dvm.corp/index.php/APIs_for_SRC/SRS
+        
+    secret: 
+      type: string 
+      description: | 
+        Not used in Relay info or QUIC info
+        
+        must-have in UDP Info only.
+        
+        Used to encrypt UDP data between SRS/SRC and UDP server. Current encryption cipher is AES-256-ECB.
+      example: XXXXXXXXXXXXXXX
+    region: 
+      externalDocs:
+        url: http://wiki.dvm.corp/index.php/APIs_to_support_Relay_Region_and_Provider
+      description: | 
+        Relay region, which region Relay is located at, for exammpe: us, cn, jp, eu-frankfurt
+      type: string 
+      nullable: true
+      example: us
+      default:
+      enum: 
+        - au
+        - ca
+        - cn 
+        - eu-frankfurt
+        - eu-london
+        - eu-north
+        - hk
+        - id 
+        - in
+        - jp
+        - kr 
+        - me 
+        - sa 
+        - sg
+        - tw 
+        - us 
+        - us-east
+        - za 
+    provider:
+      externalDocs:
+        url: http://wiki.dvm.corp/index.php/APIs_to_support_Relay_Region_and_Provider
+      description: |
+        Relay provider, which provider Relay is launched in, for example: aws.
+      type: string
+      nullable: true 
+      example: aws
+      default:
+      enum:
+        - aws
+        - gcp 
+        - oci
+    version:
+      description: |
+        Relay version, 
+      type: string
+      nullable: true 
+      example: 1.9.5.9
+      default:
+      enum:
+        - 1.9.5.9
+        - 1.7.4.1
+        - 1.5.2.0
+    zone: 
+      type: string 
+      nullable: true
+      example: us-west-1
+      default:
+      enum: 
+        - ap-southeast-2(aws)
+        - ap-sydeny-1(aws)
+        - ap-meilborne-1(aws)
+    tier: 
+      type: string 
+      nullable: true
+      default:
+      enum:
+        - default
+        - premium
+    eippool: 
+      type: string 
+      nullable: true
+      example: rseips2104
+      default:
+      enum: 
+        - rseips2104
+        - rseips2204
+    relayinfo:
+      type: object
+      properties:
+        ip: 
+          $ref: "#/components/schemas/ip"
+        port: 
+          $ref: "#/components/schemas/port"
+        srs_key: 
+          $ref: "#/components/schemas/srs_key"
+        src_key: 
+          $ref: "#/components/schemas/src_key"
+        secret: 
+          $ref: "#/components/schemas/secret"
+        region: 
+          $ref: "#/components/schemas/region"
+        provider: 
+          $ref: "#/components/schemas/provider"
+        version: 
+          $ref: "#/components/schemas/version"
+        zone: 
+          $ref: "#/components/schemas/zone"
+        tier: 
+          $ref: "#/components/schemas/tier"
+        eippool:
+          $ref: "#/components/schemas/eippool" 
+
+paths:
+  /api/relays.json:
+    post:
+      tags:
+        -  RFE
+      summary: The API is used to get a relay info and even a relay list from RFE
+      description: Post data with region, provider, tier, eippools etc to RFE, RFE will return relay info (+ relay list) according these paramenters 
+      requestBody:
+        required: true 
+        content:
+          applicaton/json: 
+            schema: 
+              type: object
+              required:
+                - relay
+              properties:
+                relay: 
+                  type: object
+                  description: The field is must-have, relay-related, for example , id or ip etc
+                  required:
+                    - id
+                    - ip
+                    - relay
+                  properties:
+                    id: 
+                      description: |
+                        Must-Have.
+
+                        It is the id of backend or SRS, but not used in current RFE
+                      type: number
+                      default: 55
+                      
+                    ip: 
+                      description: |
+                        Must-Have.
+
+                        It is the ip or fqdn of backend or SRS, but not used in current RFE
+                      type: string
+                      default: 1.2.3.4
+                    backennd: 
+                      description: |
+                        Optional.  
+
+                        Backend Info.
+
+                        Backend sends its info to RFE, RFE and RS needs these info to send offlince msg to correct backend server
+                      type: object
+                      externalDocs:
+                        url:  http://wiki.dvm.corp/index.php/Splashtop_Relay
+                        
+                      properties:
+                        region: 
+                          description: |
+                            Backend's Region Code.      
+                          type: string
+                          nullable: true
+                          default:
+                          example: EU
+                          enum:
+                            - US
+                            - EU
+                        fqdn:
+                          description: |
+                            Backend's Fqdn
+                          type: string 
+                          nullable: true
+                          default:
+                          example:  st2.api.splashtop.eu
+                    region: 
+                      $ref: "#/components/schemas/region"
+                      title: sddfafd
+                    provider: 
+                      $ref: "#/components/schemas/provider"
+                    tier:
+                      $ref: "#/components/schemas/tier"
+                    eippool: 
+                      $ref: "#/components/schemas/eippool"
+                    zone: 
+                      $ref: "#/components/schemas/zone"
+                    key:
+                      description: |
+                        Optional.
+
+                        Used for backend( or other server) to get relay info for SRIDS( a server to play or download Session Recordi). 
+
+                        Must be the relay key of a relay connection Relay do session recording on;  Must be srs_key or src_key.
+
+                        Relay will generate new relay info with same relay_key_id of the above relay key.
+                        
+                      type: string 
+                      nullable: false
+                      example: ui7nzwlhApwJN6BvqtC19XaMUxU3NO2OJ5TApWT
+                list: 
+                  description: |
+                    The parameter is used to return a relay list.  
+                  type: string
+                  nullable: true
+                  default:
+                  example: regional
+                  enum: 
+                    - regional 
+                    - backup
+                    - zonal    
+      responses:
+        '200':
+          description: OK
+          content:
+            applicaton/json:
+              schema: 
+                type: object
+                properties:
+                  relay:
+                    $ref: "#/components/schemas/relayinfo"
+                  list: 
+                    type: object
+                    properties:
+                      regional:
+                        description: |
+                          Every region has a relay server in the list 
+                        type: array
+                        items: 
+                          $ref: "#/components/schemas/relayinfo"
+                      backup: 
+                        description: | 
+                          1 - 2 relay servers in same region as backup for SRS failing to connect to primary relay server
+                        type: array
+                        items: 
+                          $ref: "#/components/schemas/relayinfo"
+                      zonal:
+                        description: | 
+                          Every zone has a relay servver in the list 
+                        type: array
+                        items: 
+                          $ref: "#/components/schemas/relayinfo"
+  /api/srs_connect.json:
+    get: 
+      tags:
+        - Relay
+      summary: The API is used for SRS to connect to a relay 
+      parameters:
+      - name: SST 
+        in: header
+        description: |
+          Optional.  
+        
+          "SST" is the abbr of "SSL-Tunnel", used for Relay to identify if a SRS supports SST or not. 
+
+          When Relay supports SST and Relay receives "SST: Ready", it will return "SST: Ready" to the SRS.
+          
+          When it is set,  the value must be "Ready".
+        schema:
+          type: string 
+          nullable: true
+          enum:
+            - Ready
+          externalDocs:
+            url: http://wiki.dvm.corp/index.php/SSL_Tunnel
+      - name: OTM 
+        in: header
+        description: |
+          Optional.  
+        
+          "OTM" is the abbr of "One-to-Manay", used for Relay to identify if a SRS supports OTM or not.
+          
+          When Relay supports OTM and receives "OTM: Ready", it will return "OTM: Ready" to the SRS.
+
+          When it is set,  the value must be "Ready".
+        schema:
+          type: string 
+          nullable: true
+          enum:
+            - Ready 
+          externalDocs:
+            url: http://wiki.dvm.corp/index.php/One_to_Many
+      - name: NTY 
+        in: header
+        description: |
+          Optional.  
+        
+          "NTY" is the abbr of "Notify-via-Relay",  used for Relay to identify if a SRS supports NTY or not.
+          
+          When Relay supports NTY and receives "NTY: Ready", it will return "NTY: Ready" to the SRS. 
+
+          When it is set,  the value must be "Ready".
+        schema:
+          type: string
+          nullable: true
+          enum: 
+            - Ready
+          externalDocs:
+            url: http://wiki.dvm.corp/index.php/Relay_notify_message_from_backend_to_SRS
+      - name: RCT 
+        in: header
+        description: |
+          Optional.  
+        
+          "RCT" is the abbr of "Relay Connection Type",  SRS uses it to tell relay what is the type of a relay conneciton
+
+          No same parameter in response.
+        schema:
+          type: string 
+          nullable: true
+          enum: 
+            - cmd
+            - relay
+            - chat 
+            - file  
+      - name: STD 
+        in: header
+        description: |
+          Optional.  
+        
+          "STD" is the abbr of "Sending TCP Disconnect",  SRS use the parameter to tell relay if the SRS supports STD.
+          
+          If Relay supports STD and receiveds "STD: Ready", it will retturn "STD: Ready" to the SRS
+
+          When it is set,  the value must be "Ready".
+        schema:
+          type: string
+          nullable: true
+          enum: 
+            - Ready 
+      - name: SON
+        in: header
+        description: |
+          Optional.  
+        
+          "SON" is the abbr of "Sending Offline Notification",  SRS use the parameter to tell relay if the SRS supports SON.
+          
+          "yes" or no set mean supporting SON, "no" or any other string mean not supporting SON
+
+        schema:
+          type: string
+          nullable: true 
+          enum: 
+            - yes
+            - no
+      - name: UDP
+        in: header
+        description: |
+          Optional.  
+        
+          "UDP" means Stun based on UDP,  SRS use the parameter to tell relay if the SRS supports UDP .
+          
+          If Relay supports UDP and receiveds "UDP: Ready" from, it will retturn UDP info to the SRS (described in section response)
+
+          When it is set,  the value must be "Ready".
+        schema:
+          type: string
+          nullable: true
+          enum: 
+            - Ready
+          externalDocs:
+            url: http://wiki.dvm.corp/index.php/Integrate_STUN_with_Relay
+      - name: QUIC
+        in: header
+        description: |
+          Optional.  
+        
+          "QUIC" means Stun based on QUIC, SRS use the parameter to tell relay if the SRS supports QUIC.
+          
+          If Relay supports QUIC and receiveds "QUIC: Ready" from SRS, it will retturn QUIC info to the SRS (described in section response)
+
+          When it is set,  the value must be "Ready".
+        schema:
+          type: string
+          nullable: true
+          enum: 
+            - Ready
+          externalDocs:
+            url: http://wiki.dvm.corp/index.php/Integrate_STUN_with_Relay
+      - name: BKD
+        in: header
+        description: |
+          Optional.  
+        
+          "BKD" is the abbr of "Backend" of Splashtop Remote. SRS use the parameter to tell relay  which backend is used by SRS.
+          
+          When Relay receives the value of "BKD" from SRS, it will send offlice notification to the sepecified backend.
+
+          The value of "BKD" is a code for a backend,  for example: EU vs EU-Stack, US vs Global Stack etc.
+
+          If "BKD" is not set, empty, "" or null, Relay will use "US" as "BKD"'s value.
+
+        schema:
+          type: string
+          nullable: true
+          enum: 
+            - EU
+            - US  
+
+      - name: RSI
+        in: header
+        description: |
+          Optional.  
+        
+          "RSI" is the abbr of "Relay Server's Info", like provider, zone, version etc, used for SRS to get a relaay server's detail info.
+
+          If Relay supports RSI and receives "RSI: request" from SRS, it will return detail relay info in repsponse( will be described in response).
+
+
+          When it is set, the value must be "RSI: request"
+
+        schema:
+          type: string
+          nullable: true
+          default: 
+          enum: 
+            - request
+      - name: LST
+        in: header
+        description: |
+          Optional.  
+        
+          "LST" is the abbr of Relay "List", used for SRS to get a relaay list.
+
+          If Relay supports RSI and receives "LST: ...",  it will return a relay list in repsponse to SRS( will be described in response).
+     
+        schema:
+          type: string
+          nullable: true
+          default: 
+          enum: 
+            - all
+            - regional
+            - backup
+            - zonal
+      - name: Recording
+        in: header
+        description: |
+          Optional.  
+        
+          The parameter is used for SRS to request recording in Relay.
+
+          If Relay supports Sessin Recording and receives "Recording: Ready" from SRS,  it will return "Recording: Ready" in header and "RecordID" in body to the SRS
+
+          SID is must-have when SRS connects to Relay with "Recording: Ready"
+      
+        schema:
+          type: string
+          nullable: true
+          default: 
+          enum: 
+            - Ready
+      - name: UUID 
+        in: header
+        description: |
+          Optional, but must-have when enables Recording: Ready,
+        
+          "UUID" is SRS's UUID when Recording: Ready is enabled, used for SRS to tell Relay what is the SRS's UUID.
+      
+        schema: 
+          type: string
+          nullable: true
+          default: 
+          enum: 
+            - Ready
+      - name: Name
+        in: header
+        description: |
+          Optional.
+        
+          "Name" is SRS's Name when Recording is enabled, used for SRS to tell Relay what is the SRS's Name.
+         
+        schema:
+          type: string
+          nullable: true
+          default: 
+          example: base64(Eric's iMac) 
+      - name: srs_key
+        in: query
+        description: |
+          srs_key is one of a relay key pair in relay info. 
+          SRS requests relay info from backend and  RFE and pass srs_key in relay info to SRS. 
+          When SRS connects to a relay, it needs to pass the srs_key to relay
+        schema:
+          $ref: "#/components/schemas/srs_key"
+        required: true
+      - name: relayip
+        in: query
+        description: |
+          Optional. 
+
+          Used in Local Relay only.
+
+          Tell a local relay which relay it needs to connect. IP or FQDN are OK for relayip, for example: 1.1.1.1 or 1-1-1-1.relay.splashtop.com
+        schema:
+          type: string 
+          nullable: true
+          default: 
+          example:
+      - name: relayport
+        in: query
+        description: |
+          Optional. 
+
+          Used in Local Relay only.
+
+          Tell a local relay which relay port it needs to connect. Range: 1 - 65535
+        schema:
+          type: integer
+          nullable: true
+          default: 
+          example:
+          minimum: 1
+          maximum: 65535
+      - name: proxy
+        in: query
+        description: |
+          Optional. 
+
+          Used in Local Relay only.
+
+          Tell a local relay which needs to connect to relay via a proxy server. IP or FQDN are OK for proxy, for example: 1.1.1.1 or 1-1-1-1.relay.splashtop.com
+        schema:
+          type: string 
+          nullable: true
+          default:
+          example:
+      - name: proxyport
+        in: query
+        description: |
+          Optional. 
+
+          Used in Local Relay only.
+
+          Tell a local relaywhat is proxy port. Range: 1 - 65535
+        schema:
+          type: integer
+          nullable: true
+          default: 
+          example:
+          minimum: 1
+          maximum: 65535
+      - name: proxyuser
+        in: query
+        description: |
+          Optional. 
+
+          Used in Local Relay only.
+
+          Tell a local relay what is proxy user. 
+        schema:
+          type: string
+          nullable: true
+          default:
+          example:
+      - name: proxypassword
+        in: query
+        description: |
+          Optional. 
+
+          Used in Local Relay only.
+
+          Tell a local relay what is proxy password.
+        schema:
+          type: string
+          nullable: true
+          default:
+          example:
+      - name: authmode
+        in: query
+        description: |
+          Optional. 
+
+          Used in Local Relay only.
+
+          Tell a local relay what is proxy auth method. 
+        schema:
+          type: string
+          nullable: true
+          default:
+          enum:
+            - basic_auth
+      responses: 
+        '200':
+          headers:
+            SST:
+              description: |
+                Optional.  
+              
+                "SST" is the abbr of "SSL-Tunnel", used for SRS to identify if Relay supports SST or not. 
+
+                When Relay supports SST and Relay receives "SST:Ready" from a SRS, it will return "SST: Ready" to the SRS.
+                
+                When it exists in ressponse,  the value must be "Ready".
+              schema:
+                type: string 
+                nullable: true
+            OTM: 
+              description: |
+                Optional.  
+              
+                "OTM" is the abbr of "One-to-Manay", used for SRS to identify if Relay supports OTM or not.
+                
+                When Relay supports OTM and receives "OTM: Ready" frp a SRS, it will return "OTM: Ready" to the SRS.
+      
+                When it exits in response,  the value must be "Ready".
+              schema:
+                type: string 
+                nullable: true
+            NTY: 
+              description: |
+                Optional.  
+              
+                "NTY" is the abbr of "Notify-via-Relay",  used for SRS to identify if Relay supports NTY or not.
+                
+                When Relay supports NTY and receives "NTY: Ready" from, it will return "NTY: Ready" to the SRS. 
+      
+                When it exits in response,  the value must be "Ready".
+              schema:
+                type: string
+                nullable: true
+            STD: 
+              description: |
+                Optional.  
+              
+                "STD" is the abbr of "Sending TCP Disconnect",  Relay uses the parameter to tell SRS if Relay supports STD or not.
+                
+                If Relay supports STD and receiveds "STD: Ready" from a SRS, it will retturn "STD: Ready" to the SRS
+      
+                When it exists in response,  the value must be "Ready".
+              schema:
+                type: string
+                nullable: true 
+          description: | 
+            OK. 
+            
+            It means Relay handles srs_connect request from SRS correctly
+          content:
+            applicaton/json:
+              schema: 
+                type: object
+                properties:
+                  record:
+                    description: |
+                      Record Info.
+
+                      When RIR: Ready is passed from SRS to Relay and Relay supports RIR,  relay will return record info to SRS
+                    properties:
+                      id: 
+                        type: string 
+                        nullable: false
+                        default:
+                        example: 1132342q35sasdfaw35rfeasdas 
+                  relay: 
+                    description: |
+                      Relay Info. 
+
+                      When SRS requests to get relay detail info, it will connect to relay with "RSI: request", relay will return the relay info
+                    properties:
+                      region: 
+                        $ref: "#/components/schemas/region"
+                        
+                      provider: 
+                        $ref: "#/components/schemas/provider"
+                      version: 
+                        $ref: "#/components/schemas/version"
+                      zone: 
+                        $ref: "#/components/schemas/zone"
+                      tier: 
+                        $ref: "#/components/schemas/tier"
+                      eippool: 
+                        $ref: "#/components/schemas/eippool"
+                  udp:
+                    description: |
+                      UDP Info.
+
+                      When SRS connects to Relay with "UDP: Relay", if Relay supports UDP, SRS will receives the UDP Info
+                    externalDocs:
+                      url: http://wiki.dvm.corp/index.php/Integrate_STUN_with_Relay
+                    properties:
+                      ip: 
+                        type: string
+                        description: |
+                          Optional.
+                          
+                          UDP server's ip or FQDN.
+
+                          Can be empty, "", "relay", null or not set, it means to use Relay's FQDM as UDP's IP or FQDN.
+
+                          Can be IP or FQDN.
+
+                        example: 1-1-1-1.relay.splashtop.com
+                        nullable: true
+                        default: 
+                      port: 
+                        type: number
+                        description: |
+                          Optional.  
+
+                          UDP server's port.  
+
+                          Can be empty, "", "relay", null or not set, it means to use Relay's port as UDP's port.
+                        default: 443
+                        minimum: 1
+                        maximum: 65535
+                      secret: 
+                        type: string 
+                        description: | 
+                          must-have in UDP Info.
+                          
+                          Used to encrypt UDP data between SRS/SRC and UDP server. Current encryption cipher is AES-256-ECB.
+                        example: XXXXXXXXXXXXXXX
+                  quic:
+                    description: |
+                      QUIC Info.
+
+                      When SRS connects to Relay with "QUIC: Ready", if Relay supports QUIC, SRS will receives the QUIC Info
+                    externalDocs:
+                      url: http://wiki.dvm.corp/index.php/Integrate_STUN_with_Relay
+                    properties:
+                      ip: 
+                        type: string
+                        description: |
+                          Optional.
+                          
+                          QUIC server's ip or FQDN.
+
+                          Can be empty, "", "relay", null or not set, it means to use Relay's FQDM as QUIC server's IP or FQDN.
+
+                          Can be IP or FQDN.
+
+                        example: 1-1-1-1.relay.splashtop.com
+                        nullable: true
+                        default: 
+                      port: 
+                        type: number
+                        description: |
+                          Optional.  
+
+                          QUIC server's port.  
+
+                          Can be empty, "", "relay", null or not set, it means to use Relay's port as QUIC server's port.
+                        default: 443
+                        minimum: 1
+                        maximum: 65535
+                  list: 
+                    type: object
+                    externalDocs:
+                      url: http://wiki.dvm.corp/index.php/APIs_to_support_Relay_Region_and_Provider
+                    properties:
+                      regional:
+                        description: |
+                          Every region has a relay server in the list 
+                        type: array
+                        items: 
+                          $ref: "#/components/schemas/relayinfo"
+                      backup: 
+                        description: | 
+                          1 - 2 relay servers in same region as backup for SRS failing to connect to primary relay server
+                        type: array
+                        items: 
+                          $ref: "#/components/schemas/relayinfo"
+                      zonal:
+                        description: | 
+                          Every zone has a relay servver in the list 
+                        type: array
+                        items: 
+                          $ref: "#/components/schemas/relayinfo"
+        '401':
+          description: srs_key auth failed             
+        '403':
+          description: srs not connected yet, retry later
+        '404':
+          description: No relay servers available
+        '407':
+          description: srs disconnected, retry later
+        '408':
+          description: relay server is overloaded
+        '409':
+          description: remote rs not support LRS
+        '410':
+          description: no backend fqdn for backend region
+        '500':
+          description: error parsing request
+        
+        
+                          
+
+    
